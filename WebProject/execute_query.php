@@ -15,7 +15,8 @@ else{
 }
 $error = false;
 error_reporting(E_ALL);
-if($_POST['query'] == ''){
+$data = $_POST;
+if($data['query'] == ''){
 	$error = true;
 	$result['status'] = 'error';
 	$result['message'] = 'Please enter the query !!';
@@ -24,17 +25,17 @@ if($_POST['query'] == ''){
 }
 
 // pagination
-if (! (isset($_POST['pageNumber']))) {
+if (! (isset($data['pageNumber']))) {
     $pageNumber = 1;
 } else {
-    $pageNumber = $_POST['pageNumber'];
+    $pageNumber = $data['pageNumber'];
 }
-$perPageCount = 20;
+$perPageCount = 100;
 
 
 $link = mysqli_connect($server, $username, $password, $db_name);
 $link ->set_charset("utf8");
-$query_string = $_POST['query'];
+$query_string = $data['query'];
 
 try{
 	$query_result = mysqli_query($link, $query_string);
@@ -68,15 +69,43 @@ if(!$query_result){
 	echo json_encode($result);
 	exit;
 }
+$result = fetchQueryResult($query_result);
 
-// while ($row = mysqli_fetch_array($query_result,MYSQLI_NUM))
-$count = 0;
-while ($row = mysqli_fetch_array($query_result,MYSQLI_ASSOC))  
-{
-    foreach ($row as $key => $value) {
-        $result[$count][$key] = $value;
-    }
-    $count++;
+// Get speakerwise result
+if($data['query_type'] == 'language_citation'){
+	$concepts_list = array_unique(array_column($result, 'concept_name'));
+	$speakers_list = mysqli_query($link, "select distinct UserName from User_Citation where LANGUAGE = '".$data['language']."'");
+	if(!$speakers_list){
+		$error = true;
+		$result['status'] = 'error';
+		$result['message'] = 'Query returned zero results. Please check !!';
+		echo json_encode($result);
+		exit;
+	}
+	$speakers_list = array_unique(array_column(fetchQueryResult($speakers_list),'UserName'));
+	$speakers_concepts_query = "select concept_name as Concept, Citation, UserName as Speaker from User_Citation where concept_name in ('".implode('\',\'', $concepts_list)."') and UserName in ('".implode('\',\'', $speakers_list)."')";
+	$speakers_concepts_list = fetchQueryResult(mysqli_query($link, $speakers_concepts_query));
+
+	$concept_speaker_combo = array();
+	foreach ($speakers_concepts_list as $key => $value) {
+		$concept_speaker_combo[$value['Concept']][$value['Speaker']] = $value['Citation'];
+	}
+
+	foreach ($result as $result_key => $result_value) {
+		foreach ($speakers_list as $speaker_key => $speaker_value) {
+			if(isset($concept_speaker_combo[$result_value['concept_name']][$speaker_value])){
+				$result[$result_key][$speaker_value] = $concept_speaker_combo[$result_value['concept_name']][$speaker_value];
+			}
+			else{
+				$result[$result_key][$speaker_value] = '';
+			}
+		}
+	}
+}
+elseif($data['query_type'] == 'speaker_query'){
+	$result[0]['LanguageName'] = $result[0]['LanguageNames'];
+	unset($result[0]['LanguageNames']);
+	unset($result[0]['LanguageIDs']);
 }
 if(!$error){
 	$final_result['query_string'] = $query_string;
@@ -88,4 +117,19 @@ if(!$error){
 }
 echo json_encode($result);
 exit;
+
+
+function fetchQueryResult($query_result){
+	$count = 0;
+	$result = array();
+	// while ($row = mysqli_fetch_array($query_result,MYSQLI_NUM))
+	while ($row = mysqli_fetch_array($query_result,MYSQLI_ASSOC))  
+	{
+	    foreach ($row as $key => $value) {
+	        $result[$count][$key] = $value;
+	    }
+	    $count++;
+	}
+	return $result;
+}
 ?>

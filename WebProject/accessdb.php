@@ -19,6 +19,11 @@
         .pb{position: absolute !important;}
         .t10{top: 10px;}
         .r10{right: 10px;}
+        .main_btn{
+            line-height: 35px !important;
+            width: 130px !important;
+            padding: 0px 0px !important;
+        }
 
         html, body {
             margin: 0;
@@ -120,14 +125,21 @@
                         </div>
                         <div>
                             <input type="submit" name="execute_query" value="Execute Query" id="execute_query" class="main_btn" />
-                            <input type="submit" name="execute_sp1" value="Execute SP1" id="execute_sp1" class="main_btn" />
-                            <input type="submit" name="execute_sp2" value="Execute SP2" id="execute_sp2" class="main_btn" />
+                            <!-- <input type="submit" name="execute_sp1" value="Get Biya Citation" id="execute_sp1" class="main_btn" /> -->
+                            <!-- <input type="submit" name="execute_sp2" value="Execute SP2" id="execute_sp2" class="main_btn" /> -->
+                        </div>
+                        <div style="margin-top: 20px;" id="div_citation_list">                            
+                            
+                        </div>
+                        <div style="margin-top: 20px;" id="div_speakers_list">                            
+                            
                         </div>
                         <div id="response" style="margin-top: 30px;"></div>
                         <div id="error_div" class="mrt15 f12 tx-red error_span text-danger pr" style="margin-top: 30px; width: fit-content; margin:auto; padding: 10px;">
                             <div id="error_response"></div>
                         </div>
                         <input type="hidden" id="query_string"/>
+                        <input type="hidden" id="query_type"/>
                     </div>
                 </div>
             </div>
@@ -143,23 +155,126 @@
         $("#error_response").html('');
         $(".error_span").hide();
         $("#error").empty();
+
+        getSpeakersList();
+        getLanguageList();
     });
 
+    function getLanguageList(){
+        $.ajax(
+        {
+            type: "POST",
+            url : "language_list.php",
+            // url : "excel_export.php",
+            // data : jsonData,
+            dataType: "json",
+            async: true,
+            success:function(data) 
+            {
+                console.log(data);
+                var text = "";
+                // Display errors
+                if(data['status'] == 'error'){
+                    text += data['message'];
+                    $("#error_response").append(text);
+                    $(".error_span").show();
+                    $('#display_errors').append("<strong>"+data['message']+"</strong> <br>");
+                }
+                // Display result
+                else{
+                    text += "<select style='margin-right: 20px;width: 115px;color: #333;background-color: #fff;border: 1px solid #e5e5e5;font-size: 14px;font-weight: normal;height: 34px;text-indent: 10px;' id='select_language'>";
+                    for (i = 0, len = data.length; i < len; i++) {
+                        text += "<option value='"+data[i]['Language']+"'>"+data[i]['Language']+"</option>";
+                    }
+                    text += "</select>";
+                    text += "<input type='submit' name='get_language_citation' value='Language Citation' id='get_language_citation' class='main_btn' onclick=getLanguageCitation() />";
+                    $("#div_citation_list").append(text);
+                }
+            }
+        });
+    }
+
+    function getLanguageCitation(language_value = false){
+        // query_sp_1 = "select A.Concept_Name As Concept, A.Citation As Citation_ICN_Biya_2, B.Citation As Citation_ENB_Biya_1 from (select * from User_Citation where UserName='ICN-Biya-2') A inner join (select * from User_Citation where UserName='ENB-Biya-1') B on A.Concept_Name =B.Concept_Name where A.UserName='ICN-Biya-2' Or A.UserName='ENB-Biya-1'";
+        // query_sp_1 = "select concept_name as Concept, citation as Citation, userName as Speaker from User_Citation where LANGUAGE = 'Biya'";
+        if(!language_value){
+            language_value = $('#select_language').val();
+        }
+        else{
+            $("#select_language").val(language_value);
+        }
+        query_sp_1 = "select distinct concept_name from User_Citation where LANGUAGE = '"+language_value+"'";
+
+        // $("#query_search_box").html(query_sp_1);
+        $("#query_type").val('language_citation');
+        getResult(query_sp_1, 1, false, false, 'language_citation');
+    }
+
+    function getSpeakersList(){
+        $.ajax(
+        {
+            type: "POST",
+            url : "speakers_list.php",
+            // url : "excel_export.php",
+            // data : jsonData,
+            dataType: "json",
+            async: true,
+            success:function(data) 
+            {
+                console.log(data);
+                var text = "";
+                // Display errors
+                if(data['status'] == 'error'){
+                    text += data['message'];
+                    $("#error_response").append(text);
+                    $(".error_span").show();
+                    $('#display_errors').append("<strong>"+data['message']+"</strong> <br>");
+                }
+                // Display result
+                else{
+                    text += "<select style='margin-right: 20px;width: 115px;color: #333;background-color: #fff;border: 1px solid #e5e5e5;font-size: 14px;font-weight: normal;height: 34px;text-indent: 10px;' id='select_speaker'>";
+                    for (i = 0, len = data.length; i < len; i++) {
+                        text += "<option value='"+data[i]['SpeakerID']+"'>"+data[i]['SpeakerID']+"</option>";
+                    }
+                    text += "</select>";
+                    text += "<input type='submit' name='get_speaker_data' value='Get Speaker Data' id='get_speaker_data' class='main_btn' onclick=getSpeakerInfo() />";
+                    $("#div_speakers_list").append(text);
+                }
+            }
+        });
+    }
+
+    function getSpeakerInfo(speaker_value = false){
+        if(!speaker_value){
+            speaker_value = $('#select_speaker').val();
+        }
+        else{
+            $("#select_speaker").val(speaker_value);
+        }
+        console.log(speaker_value);
+        console.log('getSpeakerInfo');
+        var speaker_query = "Select *, group_concat(LanguageName) as LanguageNames, group_concat(LanguageID) as LanguageIDs from SpeakerMetaData where SpeakerID = '"+speaker_value+"'";
+        $("#query_search_box").html(speaker_query);
+        $("#query_type").val('speaker_query');
+        getResult(speaker_query, 1, false, true, 'speaker_query');
+    }
     
 
     // Execute on click of query
     $("#execute_query").on("click",function(){
-        getResult($("#query_search_box").val());
+        $("#query_type").val('execute_query');
+        getResult($("#query_search_box").val(), 1, false, false, 'execute_query');
     });
 
-   
     // Execute SP 1
     $("#execute_sp1").on("click",function(){
+        // // query_sp_1 = "select A.Concept_Name As Concept, A.Citation As Citation_ICN_Biya_2, B.Citation As Citation_ENB_Biya_1 from (select * from User_Citation where UserName='ICN-Biya-2') A inner join (select * from User_Citation where UserName='ENB-Biya-1') B on A.Concept_Name =B.Concept_Name where A.UserName='ICN-Biya-2' Or A.UserName='ENB-Biya-1'";
+        // // query_sp_1 = "select concept_name as Concept, citation as Citation, userName as Speaker from User_Citation where LANGUAGE = 'Biya'";
+        // query_sp_1 = "select distinct concept_name from User_Citation where LANGUAGE = 'Biya'";
 
-        query_sp_1 = "select A.Concept_Name As Concept, A.Citation As Citation_ICN_Biya_2, B.Citation As Citation_ENB_Biya_1 from (select * from User_Citation where UserName='ICN-Biya-2') A inner join (select * from User_Citation where UserName='ENB-Biya-1') B on A.Concept_Name =B.Concept_Name where A.UserName='ICN-Biya-2' Or A.UserName='ENB-Biya-1'";
-
-        $("#query_search_box").html(query_sp_1);
-        getResult(query_sp_1);
+        // // $("#query_search_box").html(query_sp_1);
+        // $("#query_type").val('execute_sp1');
+        // getResult(query_sp_1, 1, false, false, 'execute_sp1');
     });
 
     // Execute SP 2
@@ -170,11 +285,18 @@
     });
 
     function page_query(pageNumber){
-        getResult('false_query', pageNumber, true);
+        getResult('false_query', pageNumber, true, false);
+    }
+
+    function exportExcel(){
+    // $("#excel_submit").on("click",function(){
+        console.log('aaa');
+        $("#excel_query").val($("#query_string").val());
+    // });
     }
 
     // get result for a given query
-    function getResult(query_text, pageNumber = 1, check_query_div = false){
+    function getResult(query_text, pageNumber = 1, check_query_div = false, transpose_result = false, query_type = 'execute_query'){
         if(check_query_div){
             query_text = $("#query_string").val();
         }
@@ -185,12 +307,16 @@
 
         var jsonData = {};
         jsonData['query'] = query_text;
+        jsonData['query_type'] = $("#query_type").val();;
         jsonData['pageNumber'] = pageNumber;
+        jsonData['language'] = $("#select_language").val();
+        console.log(jsonData);
 
         $.ajax(
         {
             type: "POST",
             url : "execute_query.php",
+            // url : "excel_export.php",
             data : jsonData,
             dataType: "json",
             async: true,
@@ -211,6 +337,15 @@
                     var query_string = data['query_string'];
                     $("#query_string").val(query_string);
 
+                    console.log(query_text);
+                    text += '<div style="height: 30px;"><form action="export_excel.php" method = "post" id="excel_form" style="text-align:left;">';
+                    text += '<input type="submit" name="excel_submit" value="Export to Excel" id="excel_submit" class="main_btn" onclick=exportExcel() />';
+                    text += '<input type="hidden" name="excel_query" id="excel_query" value="'+$("#query_string").val()+'"/>';
+                    text += '<input type="hidden" name="excel_query_type" id="excel_query_type" value="'+$("#query_type").val()+'"/>';
+                    text += '<input type="hidden" name="transpose_result" id="transpose_result" value="'+transpose_result+'" />';
+                    text += '<input type="hidden" name="language" id="language" value="'+$("#select_language").val()+'" /></form>';
+                    
+
                     // Pagination text
                     var pagination_text = '';
                     pagination_text += '<div style="height: 30px;"></div>';
@@ -224,7 +359,7 @@
                     if(i == 0){
                         i = 1;
                     }
-                    if(i>=20){
+                    if(i>=100){
                         pagination_text += '<li><a href="javascript:void(0);" class="pages" onclick = page_query('+(i-10)+')> '+(i-10)+' </a></li>';
                     }
                     for (page_counter = 0; page_counter <= 10; page_counter++){
@@ -249,30 +384,76 @@
                     text += pagination_text;
                     text += '<table class = "table table-striped table-bordered table-hover">';
                     
-                    var data_keys = Object.getOwnPropertyNames(data[0]);
-                    for (i = 0, len = data.length; i < len; i++) {
-                        console.log(data[i]);
-                        if(i == 0){
-                            text += '<thead>';
-                            text += '<tr>';
-
-                            // add columns
+                    if(transpose_result){
+                        var data_keys = Object.getOwnPropertyNames(data[0]);
+                        for (i = 0, len = data.length; i < len; i++) {
+                            // add rows
                             for (j = 0; j < data_keys.length; j++){
-                                text += '<th>'+data_keys[j]+'</th>';
+                                text += '<tr>';
+                                text += '<th>'+[data_keys[j]]+'</th>';
+                                if(query_type == 'speaker_query'){
+                                    if(data_keys[j] == 'LanguageName'){
+                                        language_list = data[i][data_keys[j]].split(',');
+                                        text += "<th>";
+                                        for (language_list_count = 0; language_list_count < language_list.length; language_list_count++){
+                                            text += "<p onclick = getLanguageCitation('"+language_list[language_list_count]+"')><h style='text-shadow: none;color: #5b9bd1;cursor: pointer;'>"+language_list[language_list_count]+"</h>";
+                                            if(language_list_count == language_list.length - 1){
+                                                text += " </p>";
+                                            }
+                                            else{
+                                                text += ", </p>";
+                                            }
+                                        }
+                                    }
+                                    else{
+                                        text += '<th>'+data[i][data_keys[j]]+'</th>';
+                                    }
+                                }
+                                else{
+                                    text += '<th>'+data[i][data_keys[j]]+'</th>';
+                                }
+                                text += '</tr>';
+                            }
+                        }
+                        text += '</tbody>';
+                        text += '</table>';
+                    }
+                    else{
+                        var data_keys = Object.getOwnPropertyNames(data[0]);
+                        for (i = 0, len = data.length; i < len; i++) {
+                            if(i == 0){
+                                text += '<thead>';
+                                text += '<tr>';
+
+                                // add columns
+                                for (j = 0; j < data_keys.length; j++){
+                                    if(query_type == 'language_citation'){
+                                        if(data_keys[j] == 'concept_name'){
+                                            text += '<th>'+data_keys[j]+'</th>';
+                                        }
+                                        else{
+                                            speaker_name = data_keys[j].split('-')[0];
+                                            text += "<th onclick = getSpeakerInfo('"+speaker_name+"')><h style='text-shadow: none;color: #5b9bd1;cursor: pointer;'>"+data_keys[j]+"</h></th>";
+                                        }
+                                    }
+                                    else{
+                                        text += '<th>'+data_keys[j]+'</th>';
+                                    }
+                                }
+                                text += '</tr>';
+                                text += '</thead>';
+                                text += '<tbody>';
+                            }
+                            // add rows
+                            text += '<tr>';
+                            for (j = 0; j < data_keys.length; j++){
+                                text += '<th>'+data[i][data_keys[j]]+'</th>';
                             }
                             text += '</tr>';
-                            text += '</thead>';
-                            text += '<tbody>';
                         }
-                        // add rows
-                        text += '<tr>';
-                        for (j = 0; j < data_keys.length; j++){
-                            text += '<th>'+data[i][data_keys[j]]+'</th>';
-                        }
-                        text += '</tr>';
+                        text += '</tbody>';
+                        text += '</table>';
                     }
-                    text += '</tbody>';
-                    text += '</table>';
                     text += pagination_text;
 
                     $("#response").append(text);
@@ -280,4 +461,10 @@
             }
         });
     }
+
+    // // function exportExcel(){
+    // $("#excel_submit").on("click",function(){
+    //     console.log('aaa');
+    //     $("#excel_query").val($("#query_string").val());
+    // });
 </script>
