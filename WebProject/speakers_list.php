@@ -1,6 +1,6 @@
 <?php
 $local_db = false;
-// $local_db = true;
+$local_db = false;
 if($local_db){
 	$server = 'localhost';
 	$username = 'root';
@@ -22,7 +22,7 @@ $query_result = mysqli_query($link, $query_string);
 if(!$query_result){
 	$error = true;
 	$result['status'] = 'error';
-	$result['message'] = 'Query returned zero results. Please check !!';
+	$result['message'] = 'No Speakers found. Please contact Administrator!!';
 	echo json_encode($result);
 	exit;
 }
