@@ -10,18 +10,20 @@ function filterData(&$str)
 $local_db = false;
 $local_db = false;
 if($local_db){
-	$server = 'localhost';
-	$username = 'root';
-	$password = '';
-	$db_name = 'test';
+    $server = 'localhost';
+    $username = 'root';
+    $password = '';
+    $port = '3307';
+    $db_name = 'access_database';
 }
 else{
-	$server = 'dspathwaysorg.ipagemysql.com';
-	$username = 'jeff';
-	$password = 'PathwaysDS20!7';
-	$db_name = 'access_database';
+    $server = 'dspathwaysorg.ipagemysql.com';
+    $username = 'jeff';
+    $password = 'PathwaysDS20!7';
+    $port = '3306';
+    $db_name = 'access_database';
 }
-$link = mysqli_connect($server, $username, $password, $db_name);
+$link = mysqli_connect($server.':'.$port, $username, $password, $db_name);
 $link ->set_charset("utf8");
 $data = $_POST;
 $query_string = $data['excel_query'];
@@ -59,6 +61,12 @@ if($data['excel_query_type'] == 'language_citation'){
         }
         else{
             $speakers_list = array_unique(array_column(fetchQueryResult($speakers_list),'UserName'));
+            $speaker_order_list = array();
+            foreach ($speakers_list as $key => $value) {
+                $speaker_order_list[explode('-', $value)[2]] = $value;
+            }
+            ksort($speaker_order_list);
+
             $speakers_concepts_query = "select concept_name as Concept, Citation, UserName as Speaker from User_Citation where concept_name in ('".implode('\',\'', $concepts_list)."') and UserName in ('".implode('\',\'', $speakers_list)."')";
             $speakers_concepts_list = fetchQueryResult(mysqli_query($link, $speakers_concepts_query));
 
@@ -69,7 +77,7 @@ if($data['excel_query_type'] == 'language_citation'){
             }
 
             // SR no, Concept and Speakers
-            $result = updateLanguageCitationResult($result, $speakers_list, $concept_sr_no, $concept_speaker_combo);
+            $result = updateLanguageCitationResult($result, $speaker_order_list, $concept_sr_no, $concept_speaker_combo);
         }
     }
 }
