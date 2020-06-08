@@ -1,18 +1,23 @@
 <?php
 $local_db = false;
-$local_db = false;
 if($local_db){
 	$server = 'localhost';
 	$username = 'root';
 	$password = '';
-	$db_name = 'test';
+	$port = '3307';
+	$db_name = 'access_database';
 }
 else{
 	$server = 'dspathwaysorg.ipagemysql.com';
 	$username = 'jeff';
 	$password = 'PathwaysDS20!7';
+	$port = '3306';
 	$db_name = 'access_database';
 }
+
+$link = mysqli_connect($server.':'.$port, $username, $password, $db_name);
+$link ->set_charset("utf8");
+
 $error = false;
 error_reporting(E_ALL);
 $data = $_POST;
@@ -25,16 +30,13 @@ if($data['query'] == ''){
 }
 
 // pagination
-if (! (isset($data['pageNumber']))) {
-    $pageNumber = 1;
-} else {
-    $pageNumber = $data['pageNumber'];
-}
-$perPageCount = 100;
+// if (! (isset($data['pageNumber']))) {
+//     $pageNumber = 1;
+// } else {
+//     $pageNumber = $data['pageNumber'];
+// }
+// $perPageCount = 100;
 
-
-$link = mysqli_connect($server, $username, $password, $db_name);
-$link ->set_charset("utf8");
 $query_string = $data['query'];
 
 try{
@@ -56,11 +58,15 @@ if(!$query_result){
 }
 
 // pagination
-$rowCount = mysqli_num_rows($query_result);
-mysqli_free_result($query_result);
-$pagesCount = ceil($rowCount / $perPageCount);
-$lowerLimit = ($pageNumber - 1) * $perPageCount;
-$sqlQuery = $query_string." limit " . ($lowerLimit) . " ,  " . ($perPageCount) . " ";
+// $rowCount = mysqli_num_rows($query_result);
+// mysqli_free_result($query_result);
+// $pagesCount = ceil($rowCount / $perPageCount);
+// $lowerLimit = ($pageNumber - 1) * $perPageCount;
+// $sqlQuery = $query_string." limit " . ($lowerLimit) . " ,  " . ($perPageCount) . " ";
+
+// no pagination
+$sqlQuery = $query_string;
+
 $query_result = mysqli_query($link, $sqlQuery);
 if(!$query_result){
 	$error = true;
@@ -91,6 +97,12 @@ if($data['query_type'] == 'language_citation'){
 		}
 		else{
 			$speakers_list = array_unique(array_column(fetchQueryResult($speakers_list),'UserName'));
+			$speaker_order_list = array();
+			foreach ($speakers_list as $key => $value) {
+				$speaker_order_list[explode('-', $value)[2]] = $value;
+			}
+			ksort($speaker_order_list);
+
 			$speakers_concepts_query = "select concept_name as Concept, Citation, UserName as Speaker from User_Citation where concept_name in ('".implode('\',\'', $concepts_list)."') and UserName in ('".implode('\',\'', $speakers_list)."')";
 			$speakers_concepts_list = fetchQueryResult(mysqli_query($link, $speakers_concepts_query));
 
@@ -99,7 +111,7 @@ if($data['query_type'] == 'language_citation'){
 				$concept_speaker_combo[$value['Concept']][$value['Speaker']] = $value['Citation'];
 			}
 
-			$result = updateLanguageCitationResult($result, $speakers_list, $concept_sr_no, $concept_speaker_combo);
+			$result = updateLanguageCitationResult($result, $speaker_order_list, $concept_sr_no, $concept_speaker_combo);
 		}
 	}
 }
@@ -111,8 +123,11 @@ elseif($data['query_type'] == 'speaker_query'){
 if(!$error){
 	$final_result['query_string'] = $query_string;
 	$final_result['message'] = $result;
-	$final_result['page_no'] = $pageNumber;
-	$final_result['total_pages'] = $pagesCount;
+
+	// pagination
+	// $final_result['page_no'] = $pageNumber;
+	// $final_result['total_pages'] = $pagesCount;
+	
 	$final_result['status'] = 'success';
 	$result = $final_result;
 }

@@ -76,11 +76,9 @@
             margin: 0px 6px;
         }
 
-        .table {
+/*        .table {
             width: 100%;
-            border-spacing: 0px;
-            /*color: #6d6c6c;*/
-        }
+            border-spacing: 0px;        }
 
         .table td {
             padding: 10px;
@@ -90,9 +88,8 @@
         .table th {
             padding: 10px;
             border-bottom: 1px solid #d9d9d9;
-            /*background: #d9d9d9;*/
             text-align: left;
-        }
+        }*/
     </style>
     <head>
         <!-- Required meta tags -->
@@ -149,6 +146,16 @@
 
 <script src="JavaScripts/jquery-3.3.1.min.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+
+<script src="//cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/fixedheader/3.1.6/js/dataTables.fixedHeader.min.js"></script>
+
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+
+<link rel="stylesheet" href="//cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.1.6/css/fixedHeader.dataTables.min.css">
+
 <script type="text/javascript">
     var concept_list = {};
     $(document).ready(function(){
@@ -335,8 +342,11 @@
 
         var jsonData = {};
         jsonData['query'] = query_text;
-        jsonData['query_type'] = $("#query_type").val();;
-        jsonData['pageNumber'] = pageNumber;
+        jsonData['query_type'] = $("#query_type").val();
+
+        // As no pagination
+        // jsonData['pageNumber'] = pageNumber;
+
         // jsonData['concept_list'] = concept_list;
         jsonData['language'] = $("#select_language").val();
         console.log(jsonData);
@@ -345,7 +355,6 @@
         {
             type: "POST",
             url : "execute_query.php",
-            // url : "excel_export.php",
             data : jsonData,
             dataType: "json",
             async: true,
@@ -361,12 +370,14 @@
                 }
                 // Display result
                 else{
-                    var page_no = data['page_no'];
-                    var total_pages = data['total_pages'];
+                    // As no pagination
+                    // var page_no = data['page_no'];
+                    // var total_pages = data['total_pages'];
+
                     var query_string = data['query_string'];
                     $("#query_string").val(query_string);
-
                     console.log(query_text);
+
                     text += '<div style="height: 30px;"><form action="export_excel.php" method = "post" id="excel_form" style="text-align:left;">';
                     text += '<input type="submit" name="excel_submit" value="Export to Excel" id="excel_submit" class="main_btn" onclick=exportExcel() />';
                     text += '<input type="hidden" name="excel_query" id="excel_query" value="'+$("#query_string").val()+'"/>';
@@ -374,44 +385,58 @@
                     text += '<input type="hidden" name="transpose_result" id="transpose_result" value="'+transpose_result+'" />';
                     text += '<input type="hidden" name="language" id="language" value="'+$("#select_language").val()+'" /></form>';
                     
+                    // As no pagination
+                    // *** Code for pagination ***
+                    // 1 - Pagination
+                    // // Pagination text
+                    // var pagination_text = '';
+                    // pagination_text += '<div style="height: 30px;"></div>';
+                    // pagination_text += '<ul class="pagination pagination-circular" role="navigation" aria-label="Pagination">';
+                    // if(total_pages > 10){ 
+                    //     if(page_no>=10){
+                    //         pagination_text += '<li><a href="javascript:void(0);" class="pages" onclick = page_query('+1+')> First </a></li>';
+                    //     }
+                    // }
+                    // i = Math.floor(page_no/10)*10;
+                    // if(i == 0){
+                    //     i = 1;
+                    // }
+                    // if(i>=100){
+                    //     pagination_text += '<li><a href="javascript:void(0);" class="pages" onclick = page_query('+(i-10)+')> '+(i-10)+' </a></li>';
+                    // }
+                    // for (page_counter = 0; page_counter <= 10; page_counter++){
+                    //     if(i == page_no){
+                    //         pagination_text += '<li><a href="javascript:void(0);" class="current" onclick = page_query('+i+')> '+i+' </a></li>';
+                    //     }
+                    //     else{
+                    //         pagination_text += '<li><a href="javascript:void(0);" class="pages" onclick = page_query('+i+')> '+i+' </a></li>';
+                    //     }
+                    //     if(i >= total_pages){
+                    //         break;
+                    //     }
+                    //     i += 1;
+                    // }
+                    // if(i < total_pages){
+                    //     pagination_text += '<li><a href="javascript:void(0);" class="pages" onclick = page_query('+total_pages+')> Last </a></li>';
+                    // }
+                    // pagination_text += '</ul>';
+                    // 1 - Pagination End
 
-                    // Pagination text
-                    var pagination_text = '';
-                    pagination_text += '<div style="height: 30px;"></div>';
-                    pagination_text += '<ul class="pagination pagination-circular" role="navigation" aria-label="Pagination">';
-                    if(total_pages > 10){ 
-                        if(page_no>=10){
-                            pagination_text += '<li><a href="javascript:void(0);" class="pages" onclick = page_query('+1+')> First </a></li>';
-                        }
-                    }
-                    i = Math.floor(page_no/10)*10;
-                    if(i == 0){
-                        i = 1;
-                    }
-                    if(i>=100){
-                        pagination_text += '<li><a href="javascript:void(0);" class="pages" onclick = page_query('+(i-10)+')> '+(i-10)+' </a></li>';
-                    }
-                    for (page_counter = 0; page_counter <= 10; page_counter++){
-                        if(i == page_no){
-                            pagination_text += '<li><a href="javascript:void(0);" class="current" onclick = page_query('+i+')> '+i+' </a></li>';
-                        }
-                        else{
-                            pagination_text += '<li><a href="javascript:void(0);" class="pages" onclick = page_query('+i+')> '+i+' </a></li>';
-                        }
-                        if(i >= total_pages){
-                            break;
-                        }
-                        i += 1;
-                    }
-                    if(i < total_pages){
-                        pagination_text += '<li><a href="javascript:void(0);" class="pages" onclick = page_query('+total_pages+')> Last </a></li>';
-                    }
-                    pagination_text += '</ul>';
+
+                    // As no pagination
+                    // text += pagination_text;
 
                     // List text
                     data = data['message'];
-                    text += pagination_text;
-                    text += '<table class = "table table-striped table-bordered table-hover">';
+                    if(query_type == 'speaker_query'){
+                        text += '<table id="speaker_table" class = "table table-striped table-bordered table-hover">';
+                    }
+                    else if(query_type == 'language_citation'){
+                        text += '<table id="language_citation_table" class = "table table-striped table-bordered table-hover">';
+                    }
+                    else{ 
+                        text += '<table class = "table table-striped table-bordered table-hover">';
+                    }
                     
                     if(transpose_result){
                         var data_keys = Object.getOwnPropertyNames(data[0]);
@@ -449,45 +474,99 @@
                     }
                     else{
                         var data_keys = Object.getOwnPropertyNames(data[0]);
-                        console.log('aaa');
-                        console.log(query_type);
-                        for (i = 0, len = data.length; i < len; i++) {
-                            if(i == 0){
-                                text += '<thead>';
-                                text += '<tr>';
+                        text += '<thead>';
+                        text += '<tr>';
+                        for (j = 0; j < data_keys.length; j++){
+                            // text += '<th>'+data_keys[j]+'</th>';
 
-                                // add columns
-                                for (j = 0; j < data_keys.length; j++){
-                                    if(query_type == 'language_citation'){
-                                        if((data_keys[j] == 'concept_name') || (data_keys[j] == 'sr_no')){
-                                            text += '<th>'+data_keys[j]+'</th>';
-                                        }
-                                        else{
-                                            speaker_name = data_keys[j].split('-')[0];
-                                            text += "<th onclick = getSpeakerInfo('"+speaker_name+"')><h style='text-shadow: none;color: #5b9bd1;cursor: pointer;'>"+data_keys[j]+"</h></th>";
-                                        }
-                                    }
-                                    else{
-                                        text += '<th>'+data_keys[j]+'</th>';
-                                    }
+                            if(query_type == 'language_citation'){
+                                if((data_keys[j] == 'concept_name') || (data_keys[j] == 'sr_no')){
+                                    text += '<th>'+data_keys[j]+'</th>';
                                 }
-                                text += '</tr>';
-                                text += '</thead>';
-                                text += '<tbody>';
+                                else{
+                                    speaker_name = data_keys[j].split('-')[0];
+                                    text += "<th onclick = getSpeakerInfo('"+speaker_name+"')><h style='text-shadow: none;color: #5b9bd1;cursor: pointer;'>"+data_keys[j]+"</h></th>";
+                                }
                             }
+                            else{
+                                text += '<th>'+data_keys[j]+'</th>';
+                            }
+                        }
+                        text += '</tr>';
+                        text += '</thead>';
+                        text += '<tbody>';
+                        for (i = 0, len = data.length; i < len; i++) {
                             // add rows
                             text += '<tr>';
                             for (j = 0; j < data_keys.length; j++){
-                                text += '<th>'+data[i][data_keys[j]]+'</th>';
+                                text += '<td>'+data[i][data_keys[j]]+'</td>';
                             }
                             text += '</tr>';
                         }
                         text += '</tbody>';
+
+                        if(query_type == 'language_citation'){
+                            // add footer for filter
+                            text += '<tfoot>';
+                            text += '<tr>';
+                            for (j = 0; j < data_keys.length; j++){
+                                text += '<th>'+data_keys[j]+'</th>';
+                            }
+                            text += '</tr>';
+                            text += '</tfoot>';
+                        }
                         text += '</table>';
                     }
-                    text += pagination_text;
+
+                    // As no pagination
+                    // text += pagination_text;
 
                     $("#response").append(text);
+
+                    // 3 - Datatable upgraded
+                    $('#language_citation_table tfoot th').each( function () {
+                        var title = $(this).text();
+                        $(this).html( "<input type='text' placeholder='Search "+title+"' />" );
+                    } );
+
+                    // DataTable
+                    var table = $('#language_citation_table').DataTable({
+                        initComplete: function () {
+                            // Display search options - at top (default = bottom)
+                            var r = $('#language_citation_table tfoot tr');
+                            r.find('th').each(function(){
+                                $(this).css('padding', 8);
+                            });
+                            $('#language_citation_table thead').append(r);
+                            $('#search_0').css('text-align', 'center');
+
+                            // Apply the search
+                            this.api().columns().every( function () {
+                                var that = this;
+                                $( 'input', this.footer() ).on( 'keyup change clear', function () {
+                                    if ( that.search() !== this.value ) {
+                                        that
+                                            .search( this.value )
+                                            .draw();
+                                    }
+                                } );
+                            } );
+                        }
+                    });
+                    // end 3
+
+                    // 1 - Simple datatable
+                    // if(query_type == 'language_citation'){
+                    //     $('#language_citation_table').DataTable({
+                    //         "order": [
+                    //             [2, "asc"]
+                    //         ],
+                    //         "language": {
+                    //             "searchPlaceholder": "Search Anything"
+                    //         },
+                    //     });
+                    // }
+                    // end 1
                 }
             }
         });
