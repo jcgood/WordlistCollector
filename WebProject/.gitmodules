@@ -1,0 +1,3 @@
+[submodule "h2o-php"]
+	path = h2o-php
+	url = http://github.com/speedmax/h2o-php.git

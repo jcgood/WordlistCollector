@@ -1,218 +1,17 @@
-
 <?php
-
-include 'util.php';
-my_session_start();
+include_once 'util.php';
+include_once 'menu.php';
+if (!isset($_SESSION)){
+    my_session_start();
+}
 ?>
 <html lang="en">
-    <style type="text/css">
-        .error_span{
-            height: auto;
-            background: #f2dede;
-            font-size: 19px !important;
-            padding-left: 10px;
-            border: 1px solid #F3565D!important;
-        }
-        .fa-close:hover{
-            cursor: pointer;
-        }
-        .w115p{width: 115px}
-        .cl333{color: #333}
-        .bd1ps{border: 1px solid #e5e5e5}
-        .fs14p{font-size: 14px}
-        .fwn{font-weight: normal}
-        .w13p{width: 13px}
-        .w20p{width: 20px}
-        .w35p{width: 35px}
-        .h13p{height: 13px}
-        .h20p{height: 20px}
-        .h35p{height: 35px}
-        .h34p{height: 34px}
-        .h30p{height: 30px}
-        .ti10p{text-indent: 10px}
-        .pr{position: relative !important;}
-        .cp{cursor: pointer;}
-        .tsn{text-shadow: none;}
-        .cl5b9bd1{color: #5b9bd1;}
-        .pd10{padding: 10px;}
-        .wdfc{width: fit-content;}
-        .tal{text-align: left;}
-        .mrga{margin:auto;}
-        .mrb10{margin-bottom:10px;}
-        .mrt15{margin-top:15px;}
-        .mrt20{margin-top:20px;}
-        .mrr20{margin-right:20px;}
-        .mrt30{margin-top:30px;}
-        .f12{font-size:12px;}
-        .tx-red{color:#ff0000;}
-        .pb{position: absolute !important;}
-        .t10{top: 10px;}
-        .r10{right: 10px;}
-        .main_btn{
-            line-height: 35px !important;
-            width: 130px !important;
-            padding: 0px 0px !important;
-        }
-
-        .bcfff{background-color: #fff}
-
-        html, body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-        }
-
-        body {
-            border: 0;
-            font: 12px;
-            font-family: Arial;
-            color: #000000;
-            background: #ffffff;
-        }
-
-        span[title]:hover{height: 100px;color: #000000; background: #ffffff;}
-
-        #inner-container {
-            width: 1000px;
-            max-width: 100%;
-            padding: 20px 0 70px 0;
-            height: 100%;
-        }
-
-        #container {
-            min-height: 100%;
-            padding: 20px;
-            border-radius: 2px;
-        }
-
-        .pages {
-            padding: 10px 14px;
-            color: #000000;
-            border-radius: 50%;
-            background: #CCC;
-            text-decoration: none;
-            margin: 0px 6px;
-            font-size: 0.9em;
-        }
-
-        .pages:hover {
-            color: #ffffff;
-            background: #666;
-        }
-
-        .current {
-            padding: 10px 14px;
-            color: #ffffff;
-            background: #73AD21;
-            text-decoration: none;
-            border-radius: 50%;
-            margin: 0px 6px;
-        }
-
-
-        a.tooltip {
-            border-bottom: 1px dashed;
-            text-decoration: none;
-            display: contents;
-        }
-        a.tooltip:hover {
-            cursor: help;
-            position: relative;
-        }
-        a.tooltip span {
-            display: none;
-        }
-        a.tooltip:hover span {
-            border: #000 2px solid;
-            padding: 5px 20px 5px 5px;
-            display: block;
-            z-index: 100;
-            background: #e3e3e3;
-            left: 0px;
-            margin: 15px;
-            width: 500px;
-            top: 30px;
-            position: absolute;
-            text-decoration: none;
-        }
-        a.tooltip_easy_match {
-            border-bottom: 1px dashed;
-            text-decoration: none;
-            display: contents;
-        }
-        a.tooltip_easy_match:hover {
-            cursor: help;
-            position: relative;
-        }
-        a.tooltip_easy_match span {
-            display: none;
-        }
-        a.tooltip_easy_match:hover span {
-            border: #000 2px solid;
-            padding: 10px 10px 10px 10px;
-            display: block;
-            z-index: 100;
-            background: #e3e3e3;
-            /*background: lightyellow;*/
-            left: -250px;
-            /*margin: 15px;*/
-            width: 500px;
-            top: 30px;
-            position: absolute;
-            text-decoration: none;
-        }
-
-         .table-fixed{
-          width: 100%;
-          background-color: #f3f3f3;
-          tbody{
-            height:200px;
-            overflow-y:auto;
-            width: 100%;
-            }
-         thead,tbody,tr,td,th{
-            display:block;
-          }
-         tbody{
-            td{
-              float:left;
-            }
-          }
-         thead {
-            tr{
-              th{
-                float:left;
-               background-color: #f39c12;
-               border-color:#e67e22;
-              }
-            }
-          }
-        }
-    </style>
     <head>
-        <!-- Required meta tags -->
-        <meta charset="utf-8" />
-        <link rel="icon" href="img/favicon.png" />
         <title>Access Database</title>
-        <!-- Bootstrap CSS -->
-        <link rel="stylesheet" href="css/bootstrap.css">
-        <link rel="stylesheet" href="css/style.css">
-        <link rel="stylesheet" href="css/responsive.css">
-        <link href="css/StyleSheet1.css" rel="stylesheet" />
-        <link rel="stylesheet" href="//cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
     </head>
     <body>
-        <!--================Header Menu Area =================-->
-        <header class="header_area">
-            <div class="main_menu">
-                <nav class="navbar navbar-expand-lg navbar-light">
-                    <div class="container">
-                        <p class="navbar-brand logo_h"><img src="img/favicon.png" alt="">  Access To Database</p> 
-                    </div>
-                </nav>
-            </div>
-        </header>
-        <section>         
+        <section>  
+            <br><br><br><br><br><br>
             <div class="container">
                 <div class="banner_content text-center">
                     <div>
@@ -237,14 +36,7 @@ my_session_start();
             </div>
         </section>
     </body>
-
-
 </html>
-
-<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
-
 <script type="text/javascript">
 
 (function(){
@@ -397,7 +189,8 @@ function getLanguageCitation(language_value = false){
     else{
         $("#select_language").val(language_value);
     }
-    query_sp_1 = "Select distinct Concept as concept_name FROM `ConceptList` order by Concept";
+    query_sp_1 = "Select id, wordlist_id, concept_id, concept, speaker_name, citation, noun_class from `master_word_list` where wordlist = '"+language_value+"' order by concept";
+    $("#query_search_box").html(query_sp_1);
     getResult(query_sp_1, false, 'language_citation');
 }
 
@@ -409,7 +202,7 @@ function getSpeakerInfo(speaker_value = false){
     else{
         $("#select_speaker").val(speaker_value);
     }
-    var speaker_query = "Select *, group_concat(LanguageName) as LanguageNames, group_concat(LanguageID) as LanguageIDs from SpeakerMetaData where SpeakerID = '"+speaker_value+"'";
+    var speaker_query = "Select *, group_concat(language_name) as LanguageNames from speaker where speaker_id = '"+speaker_value+"'";
     $("#query_search_box").html(speaker_query);
     getResult(speaker_query, true, 'speaker_query');
 }
@@ -463,18 +256,20 @@ function replaceStringCharacters(data){
     data = data
             // .replace(/[!]/g, 'ɪ')
             .replace('!', 'ɪ')
-            .replace('F1', 'ɛ')
-            .replace('F2', 'æ')
-            .replace('F3', 'ϋ')
-            .replace('F4', 'ø')
+            .replace('E', 'ɛ')
+            .replace('A', 'æ')
+            .replace('Y', 'ϋ')
+            .replace('O', 'ø')
             .replace('<', 'ɨ')
             .replace('@', 'ə')
             .replace('>', 'ʉ')
-            .replace('+', 'ɯ')
+            .replace('W', 'ɯ')
             .replace('&', 'ɑ')
             .replace('$', 'ʊ')
             .replace('%', 'ɔ')
             .replace('#', 'ɒ')
+            .replace('V', 'ʊ̈')
+            .replace('U', 'ʉ̈')
             ;
     console.log(data)
     return data;
@@ -491,6 +286,8 @@ function updateStringAccents(data){
     result.push(data);
 
     if($("#exact_match").prop("checked")){
+        console.log('exact_match checked');
+        console.log(result);
         return result;
     }
 
@@ -539,7 +336,7 @@ function getResultFormText(query_type, transpose_result){
     form_text += '           <div class="col-md-3">';
     form_text += '               <input type="submit" name="excel_submit" value="Download Results" id="excel_submit" class="main_btn" onclick=exportExcel() />';
     form_text += '           </div>';
-    form_text += '           <div class="col-md-3">';
+    form_text += '           <div class="col-md-3" id = "exact_match_div">';
     if(exact_match == true){
         form_text += '               <input type="checkbox" id="exact_match" name="exact_match" class="exact_match h20p w20p" value="Exact match" onchange= "exactMatchChange()" checked>';
     }
@@ -553,11 +350,11 @@ function getResultFormText(query_type, transpose_result){
     form_text += '           </div>';
     form_text += '           <div class="col-md-3">';
     form_text += '           </div>';
-    form_text += '           <div class="col-md-3">';
+    form_text += '           <div class="col-md-3" id = "easy_match_div">';
     form_text += '                   <label for="easy_match" class="main_btn">Easy match</label>';
     form_text += '                   <a href="" class="tooltip_easy_match"><img src="img/help.png" class="h20p w20p cp mrb10"/>';
     form_text += '                       <span>In order to make it easy to search for characters that are not on the regular keyboard, we can program the search boxes so that a character that is easy to type can be used for another character. <br> Type the easy character on the <b>Column 1</b> of the table. The result would contain string matching on the <b>Column 2</b> of the table.<br>';
-    form_text += '                          <table id="easy_match_table" class = "table table-striped table-dark table-bordered table-hover table-sm  table-fixed" style="height:20px !important; overflow-y: auto !important;">';
+    form_text += '                          <table id="easy_match_table" class = "table table-striped table-dark table-bordered table-hover table-sm  table-fixed" style="height:20px !important; overflow-y: auto !important; background-color: #212529 !important">';
     form_text += '                              <tr>';
     form_text += '                                  <th><b>Column 1</b></th>';
     form_text += '                                  <th><b>Column 2</b></th>';
@@ -567,19 +364,19 @@ function getResultFormText(query_type, transpose_result){
     form_text += '                                  <th>ɪ</th>';
     form_text += '                              </tr>';
     form_text += '                              <tr>';
-    form_text += '                                  <th>F1</th>';
+    form_text += '                                  <th>E</th>';
     form_text += '                                  <th>ɛ</th>';
     form_text += '                              </tr>';
     form_text += '                              <tr>';
-    form_text += '                                  <th>F2</th>';
+    form_text += '                                  <th>A</th>';
     form_text += '                                  <th>æ</th>';
     form_text += '                              </tr>';
     form_text += '                              <tr>';
-    form_text += '                                  <th>F3</th>';
+    form_text += '                                  <th>Y</th>';
     form_text += '                                  <th>ϋ</th>';
     form_text += '                              </tr>';
     form_text += '                              <tr>';
-    form_text += '                                  <th>F4</th>';
+    form_text += '                                  <th>O</th>';
     form_text += '                                  <th>ø</th>';
     form_text += '                              </tr>';
     form_text += '                              <tr>';
@@ -595,7 +392,7 @@ function getResultFormText(query_type, transpose_result){
     form_text += '                                  <th>ʉ</th>';
     form_text += '                              </tr>';
     form_text += '                              <tr>';
-    form_text += '                                  <th>+</th>';
+    form_text += '                                  <th>W</th>';
     form_text += '                                  <th>ɯ</th>';
     form_text += '                              </tr>';
     form_text += '                              <tr>';
@@ -613,6 +410,14 @@ function getResultFormText(query_type, transpose_result){
     form_text += '                              <tr>';
     form_text += '                                  <th>#</th>';
     form_text += '                                  <th>ɒ</th>';
+    form_text += '                              </tr>';
+    form_text += '                              <tr>';
+    form_text += '                                  <th>V</th>';
+    form_text += '                                  <th>ʊ̈</th>';
+    form_text += '                              </tr>';
+    form_text += '                              <tr>';
+    form_text += '                                  <th>U</th>';
+    form_text += '                                  <th>ʉ̈</th>';
     form_text += '                              </tr>';
     form_text += '                          </table>';
     form_text += '                      </span>';
@@ -636,7 +441,7 @@ function getTransposeResultText(data, query_type){
             transposed_text += '<tr>';
             transposed_text += '<th>'+[data_keys[j]]+'</th>';
             if(query_type == 'speaker_query'){
-                if(data_keys[j] == 'LanguageName'){
+                if(data_keys[j] == 'language_name'){
                     language_list = data[i][data_keys[j]].split(',');
                     transposed_text += "<th>";
                     for (language_list_count = 0; language_list_count < language_list.length; language_list_count++){
@@ -673,7 +478,7 @@ function getUnTransposeResultText(data, query_type){
         // untransposed_text += '<th>'+data_keys[j]+'</th>';
 
         if(query_type == 'language_citation'){
-            if((data_keys[j] == 'concept_name') || (data_keys[j] == 'sr_no')){
+            if((data_keys[j] == 'concept') || (data_keys[j] == 'sr_no')){
                 untransposed_text += '<th>'+data_keys[j]+'</th>';
             }
             else{
@@ -739,55 +544,18 @@ function displayDataTableLanguageCitation(){
                 $( 'input', this.footer() ).on( 'keyup change clear', function () {
                     var current_val = this.value;
                     if ( column_val.search() !== current_val ) {
-                        
-                            // column_val
-                            // .search(updateStringAccents( current_val ),true,false,true)
-                            // .search( $.fn.DataTable.ext.type.search.string( current_val ) )
-                            // .draw();
-
-                            if($("#exact_match").prop("checked")){
-                                column_val
-                                .search( '^.*'+updateStringAccents(current_val)+ '[a-zA-Z 0-9!@#$&()\\-.+\',/\"]*$',true,false,true)
-                                .draw();
-                            }
-                            else{
-                                column_val
-                                .search(updateStringAccents( current_val ),true,false,true)
-                                .draw();
-                            }
-
+                        column_val
+                        .search(updateStringAccents( current_val ),true,false,true)
+                        .draw();
                     }
-                } );
+                });
             });
-
-            // if($("#exact_match").prop("checked")){
-            // $(this)
-            //     .search( '^.*'+updateStringAccents(current_val)+ '[a-zA-Z 0-9!@#$&()\\-.+\',/\"]*$',true,false,true)
-            //     .draw();
-            // }
-            // else{
-            // $(this)
-            //     .search(updateStringAccents( current_val ),true,false,true)
-            //     .draw();
-            // }
         },
     });
-    // $('#div.dataTables_filter input').keyup(function(){
-    //     // oTable.search($(this).val()).draw() ;
-    //     console.log(this)
-    // })
     $("div.dataTables_filter input").keyup( function (e) {
-        // language_citation_table_datatable.search($(this).val()).draw() ;
-        if($("#exact_match").prop("checked") && ($(this).val() != "")){
-            language_citation_table_datatable
-            .search( '^.*'+updateStringAccents($(this).val())+ '[a-zA-Z 0-9!@#$&()\\-.+\',/\"]*$',true,false,true)
-            .draw();
-        }
-        else{
-            language_citation_table_datatable
-            .search(updateStringAccents( $(this).val() ),true,false,true)
-            .draw();
-        }
+        language_citation_table_datatable
+        .search(updateStringAccents( $(this).val() ),true,false,true)
+        .draw();
     });
 }
 
@@ -828,6 +596,10 @@ function displayResultQueryAjax(data, query_type, transpose_result){
 
     if(query_type == 'language_citation'){
         displayDataTableLanguageCitation();
+    }
+    else{
+        $("#exact_match_div").hide();
+        $("#easy_match_div").hide();
     }
 }
 

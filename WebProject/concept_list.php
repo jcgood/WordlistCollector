@@ -1,25 +1,14 @@
 <?php
-$local_db = false;
-if($local_db){
-	$server = 'localhost';
-	$username = 'root';
-	$password = '';
-	$port = '3307';
-	$db_name = 'access_database';
-}
-else{
-	$server = 'dspathwaysorg.ipagemysql.com';
-	$username = 'jeff';
-	$password = 'PathwaysDS20!7';
-	$port = '3306';
-	$db_name = 'access_database';
-}
 
-$link = mysqli_connect($server.':'.$port, $username, $password, $db_name);
-$link ->set_charset("utf8");
-$query_string = "Select distinct Concept FROM `ConceptList` order by Concept";
-$query_result = mysqli_query($link, $query_string);
+// DB connection
+require_once 'connect.php';
+$conn = getDbConnection();
 
+$query_string = "Select distinct concept as Concept FROM `concept_list_new` order by Concept";
+$statement = $conn->prepare($query_string);
+$statement->setFetchMode(PDO::FETCH_ASSOC);
+$statement->execute();
+$query_result = $statement->fetchAll();
 if(!$query_result){
 	$error = true;
 	$result['status'] = 'error';
@@ -27,16 +16,6 @@ if(!$query_result){
 	echo json_encode($result);
 	exit;
 }
-
-// while ($row = mysqli_fetch_array($query_result,MYSQLI_NUM))
-$count = 0;
-while ($row = mysqli_fetch_array($query_result,MYSQLI_ASSOC))  
-{
-    foreach ($row as $key => $value) {
-        $result[$count] = $value;
-    }
-    $count++;
-}
-echo json_encode($result);
+echo json_encode($query_result, JSON_UNESCAPED_UNICODE);
 exit;
 ?>
