@@ -245,7 +245,7 @@ function getResult(query_text, transpose_result = false, query_type = 'execute_q
         {
             // Display errors
             if(data['status'] == 'error'){
-                text += data['message'];
+                text = data['message'];
                 $("#error_response").append(text);
                 $(".error_span").show();
                 $('#display_errors').append("<strong>"+data['message']+"</strong> <br>");
