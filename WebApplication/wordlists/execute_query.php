@@ -50,7 +50,7 @@ if($data['query_type'] == 'language_citation'){
 	foreach ($query_result as $key => $value) {
 		$query_result_concept_speaker_wise[$value['concept']]['sr_no'] = $concept_sr_no[$value['concept']]['sr_no'];
 		$query_result_concept_speaker_wise[$value['concept']]['concept'] = $value['concept'];
-		$query_result_concept_speaker_wise[$value['concept']][$value['speaker_name']] = $value['citation'];
+		$query_result_concept_speaker_wise[$value['concept']][$value['speaker_name']] = $value['word'];
 	}
 
 	// Get a list of speakers

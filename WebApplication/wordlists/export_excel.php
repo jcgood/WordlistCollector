@@ -16,73 +16,56 @@ $query_string = $data['excel_query'];
 $statement = $conn->prepare($query_string);
 $statement->setFetchMode(PDO::FETCH_ASSOC);
 $statement->execute();
-$result = $statement->fetchAll();
+$query_result = $statement->fetchAll();
 
 if($data['excel_query_type'] == 'speaker_query'){
-    $result[0]['LanguageName'] = $result[0]['LanguageNames'];
-    unset($result[0]['LanguageNames']);
-    unset($result[0]['LanguageIDs']);
+    $query_result[0]['LanguageName'] = $query_result[0]['LanguageNames'];
+    unset($query_result[0]['LanguageNames']);
+    unset($query_result[0]['LanguageIDs']);
 }
 if($data['transpose_result'] == 'true'){
-    $result = transposeResult($result);
+    $query_result = transposeResult($query_result);
 }
 
 
 // Language Citation
 if($data['excel_query_type'] == 'language_citation'){
-    // SR no for concepts (words)
-    $statement = $conn->prepare("Select distinct Concept as concept_name FROM `ConceptList` order by Concept");
-    $statement->setFetchMode(PDO::FETCH_ASSOC);
-    $statement->execute();
-    $total_concepts_list = $statement->fetchAll();
-    if(!$total_concepts_list){
-        $error = true;
-        $error_message = 'No Words found. Please contact Administrator!!';
+    // Get all concepts and number them
+    $concept_sr_no = getConceptSrList($query_result);
+
+    // Order result according to each concept-speaker
+    $query_result_concept_speaker_wise = array();
+    foreach ($query_result as $key => $value) {
+        $query_result_concept_speaker_wise[$value['concept']]['sr_no'] = $concept_sr_no[$value['concept']]['sr_no'];
+        $query_result_concept_speaker_wise[$value['concept']]['concept'] = $value['concept'];
+        $query_result_concept_speaker_wise[$value['concept']][$value['speaker_name']] = $value['word'];
     }
-    else{
-        $concept_sr_no = getConceptSrList($total_concepts_list);
-        $concepts_list = array_unique(array_column($result, 'concept_name'));
 
-        // Speakers list
-        $statement = $conn->prepare("select distinct UserName from User_Citation where LANGUAGE = '".$data['language']."'");
-        $statement->setFetchMode(PDO::FETCH_ASSOC);
-        $statement->execute();
-        $speakers_list = $statement->fetchAll();
+    // Get a list of speakers
+    $speakers_list = array_unique(array_column($query_result,'speaker_name'));
 
-        if(!$speakers_list){
-            $error = true;
-            $error_message = 'No Speakers found. Please contact Administrator!!';
-        }
-        else{
-            $speakers_list = array_unique(array_column($speakers_list,'UserName'));
-            $speaker_order_list = array();
-            foreach ($speakers_list as $key => $value) {
-                $speaker_order_list[explode('-', $value)[2]] = $value;
+    // Add missing record (blank) for each concept-speaker
+    foreach ($speakers_list as $speaker_key => $speaker_value) {
+        foreach ($concept_sr_no as $key => $value) {
+            if (!isset($query_result_concept_speaker_wise[$key][$speaker_value])){
+                $query_result_concept_speaker_wise[$key][$speaker_value] = '';
             }
-            ksort($speaker_order_list);
-
-            $speakers_concepts_query = "select concept_name as Concept, Citation, UserName as Speaker from User_Citation where concept_name in ('".implode('\',\'', $concepts_list)."') and UserName in ('".implode('\',\'', $speakers_list)."')";
-            $statement = $conn->prepare($speakers_concepts_query);
-            $statement->setFetchMode(PDO::FETCH_ASSOC);
-            $statement->execute();
-            $speakers_concepts_list = $statement->fetchAll();
-
-            // Conceptwise speakers
-            $concept_speaker_combo = array();
-            foreach ($speakers_concepts_list as $key => $value) {
-                $concept_speaker_combo[$value['Concept']][$value['Speaker']] = $value['Citation'];
-            }
-
-            // SR no, Concept and Speakers
-            $result = updateLanguageCitationResult($result, $speaker_order_list, $concept_sr_no, $concept_speaker_combo);
         }
+    }
+
+    // Renumber the result
+    $query_result = array();
+    $count = 0;
+    foreach ($query_result_concept_speaker_wise as $concept_key => $value) {
+        $query_result[$count] = $value;
+        $count += 1;
     }
 }
 
 if($error){
-    $result['status'] = 'error';
-    $result['message'] = $error_message;
-    echo json_encode($result);
+    $query_result['status'] = 'error';
+    $query_result['message'] = $error_message;
+    echo json_encode($query_result);
     exit;
 }
 
@@ -98,7 +81,7 @@ header("Content-Type: application/vnd.ms-excel; charset=utf-8;");
 echo "\xEF\xBB\xBF"; //UTF-8 BOM
 
 $flag = false;
-foreach($result as $row) {
+foreach($query_result as $row) {
     if(!$flag) {
         // display column names as first row
         echo implode("\t ,", array_keys($row)) . "\n";
@@ -126,28 +109,13 @@ function transposeResult($tmp_result){
 }
 
 function getConceptSrList($total_concepts_list){
-    $total_concepts_list = array_unique(array_column($total_concepts_list,'concept_name'));
+    $total_concepts_list = array_unique(array_column($total_concepts_list,'concept'));
     $result = array();
+    $count = 0;
     foreach ($total_concepts_list as $key => $value) {
-        $result[$value]['sr_no'] = $key+1;
+        $result[$value]['sr_no'] = $count+1;
+        $count += 1;
     }
     return $result;
-}
-
-function updateLanguageCitationResult($result, $speakers_list, $concept_sr_no, $concept_speaker_combo){
-    $result_m = array();
-    foreach ($result as $total_concepts_key => $total_concepts_value) {
-        foreach ($speakers_list as $speaker_key => $speaker_value) {
-            $result_m[$total_concepts_key]['sr_no'] = $concept_sr_no[$total_concepts_value['concept_name']]['sr_no'];
-            $result_m[$total_concepts_key]['concept_name'] = $total_concepts_value['concept_name'];
-            if(isset($concept_speaker_combo[$total_concepts_value['concept_name']][$speaker_value])){
-                $result_m[$total_concepts_key][$speaker_value] = $concept_speaker_combo[$total_concepts_value['concept_name']][$speaker_value];
-            }
-            else{
-                $result_m[$total_concepts_key][$speaker_value] = '';
-            }
-        }
-    }
-    return $result_m;
 }
 ?>

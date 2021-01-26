@@ -4,6 +4,12 @@ include_once 'menu.php';
 if (!isset($_SESSION)){
     my_session_start();
 }
+// check that the user is logged in - if not, redirect to login.
+if (!isset($_SESSION["user_email_address"])) {
+    $location = "login.php";
+    echo("<script>location.href='$location'</script>");
+    exit;
+}
 ?>
 <html lang="en">
     <head>
@@ -148,7 +154,7 @@ function getLanguageList(){
                     text += "<option value='"+data[i]['Language']+"'>"+data[i]['Language']+"</option>";
                 }
                 text += "</select>";
-                text += "<input type='submit' name='get_language_citation' value='Language Citation' id='get_language_citation' class='main_btn' onclick=getLanguageCitation() />";
+                text += "<input type='submit' name='get_language_citation' value='Get Wordlist' id='get_language_citation' class='main_btn' onclick=getLanguageCitation() />";
                 $("#div_citation_list").append(text);
             }
         }
@@ -189,7 +195,7 @@ function getLanguageCitation(language_value = false){
     else{
         $("#select_language").val(language_value);
     }
-    query_sp_1 = "Select id, wordlist_id, concept_id, concept, speaker_name, citation, noun_class from `master_word_list` where wordlist = '"+language_value+"' order by concept";
+    query_sp_1 = "Select id, wordlist_id, concept_id, concept, speaker_name, word, noun_class from `master_word_list` where wordlist = '"+language_value+"' order by concept";
     $("#query_search_box").html(query_sp_1);
     getResult(query_sp_1, false, 'language_citation');
 }
