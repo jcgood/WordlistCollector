@@ -4,12 +4,12 @@ include_once 'menu.php';
 if (!isset($_SESSION)){
     my_session_start();
 }
-// check that the user is logged in - if not, redirect to login.
-if (!isset($_SESSION["user_email_address"])) {
-    $location = "login.php";
-    echo("<script>location.href='$location'</script>");
-    exit;
-}
+// // check that the user is logged in - if not, redirect to login.
+// if (!isset($_SESSION["user_email_address"])) {
+//     $location = "login.php";
+//     echo("<script>location.href='$location'</script>");
+//     exit;
+// }
 ?>
 <html lang="en">
     <head>
@@ -21,12 +21,16 @@ if (!isset($_SESSION["user_email_address"])) {
             <div class="container">
                 <div class="banner_content text-center">
                     <div>
-                        <div>
-                            <textarea name="query_search_box" rows="2" cols="20" id="query_search_box" placeholder="Click to Enter Query.." class="textBox"></textarea>
-                        </div>
-                        <div class="mrt20">
-                            <input type="submit" name="execute_query" value="Execute Query" id="execute_query" class="main_btn" />
-                        </div>
+                        <?php
+                            if (isset($_SESSION["user_email_address"])) {
+                                echo '<div>';
+                                    echo '<textarea name="query_search_box" rows="2" cols="20" id="query_search_box" placeholder="Click to Enter Query.." class="textBox"></textarea>';
+                                echo '</div>';
+                                echo '<div class="mrt20">';
+                                    echo '<input type="submit" name="execute_query" value="Execute Query" id="execute_query" class="main_btn" />';
+                                echo '</div>';
+                            }
+                        ?>
                         <div class="mrt20" id="div_citation_list">
                         </div>
                         <div class="mrt20" id="div_speakers_list">
@@ -598,6 +602,7 @@ function displayResultQueryAjax(data, query_type, transpose_result){
     }
     // Close table
     text += '</table>';
+    hideRemoveResult();
     $("#response").append(text);
 
     if(query_type == 'language_citation'){
