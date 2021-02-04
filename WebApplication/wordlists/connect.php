@@ -16,7 +16,8 @@ function getDbConnection()
         $username='jeff';
         $password='PathwaysDS20!7';
         $port="3306";
-        $dbname='access_database';
+        // $dbname='access_database';
+        $dbname='kpaam_cam';
     }
     error_log("Connecting to  ".$dbname." as user ".$username, 0);
     $conn = null;
@@ -45,11 +46,6 @@ function getOldDbConnection()
         $port="3307";
     }
     else {
-        $servername = 'dspathwaysorg.ipagemysql.com';
-        $username='jeff';
-        $password='PathwaysDS20!7';
-        $port="3306";
-        $dbname='access_database';
     }
     error_log("Connecting to  ".$dbname." as user ".$username, 0);
     $conn = null;

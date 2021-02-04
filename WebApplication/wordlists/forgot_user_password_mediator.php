@@ -39,9 +39,9 @@ if(isset($_POST)){
 		}
 		$mail->Port = 587;                       // TCP port to connect to
 
-		$mail->setFrom('no-reply@buffalo.edu', 'Access Database');
+		$mail->setFrom('jcgood@buffalo.edu', 'Access Database');
 		$mail->isHTML(true);
-	    $mail->addReplyTo('yashniti@buffalo.edu', 'Yash Mantri');
+	    $mail->addReplyTo('jcgood@buffalo.edu', 'Jeff Good');
 	    $mail->addCustomHeader('MIME-Version: 1.0');
 	    $mail->addCustomHeader('Content-Type: text/html; charset=ISO-8859-1');
     	$mail->Subject = 'Access Database Password Change Request';
@@ -61,11 +61,15 @@ if(isset($_POST)){
 		$_SESSION["set_user_password"] = "Check your email for a one-time password";
 		$_SESSION["email"] = $user_email_address;
 		$_SESSION["forgot_user_password"] = "Change Password";
-        header("Location: set_user_password.php");
+        // header("Location: set_user_password.php");
+		echo "<script>window.location.href='set_user_password.php';</script>";
+    	exit;
     }
 }
 else{
     $_SESSION["forgot_password_message"] = "There is some error. Please contact Administrator.";
-    header("Location: forgot_user_password.php");
 	closeConnections();
+    // header("Location: forgot_user_password.php");
+	echo "<script>window.location.href='forgot_user_password.php';</script>";
+	exit;
 }
