@@ -43,12 +43,12 @@ foreach ($result as $key => $value) {
 		$row_data['concept_id'] = $table_value['concept_id'];
 		$row_data['concept'] = $table_value['concept'];
 		$row_data['speaker_name'] = $table_value['speaker_name'];
-		$row_data['citation'] = $table_value['citation'];
+		$row_data['word'] = $table_value['citation'];
 		$row_data['noun_class'] = $table_value['noun_class'];
 		$row_data['concept_speaker_name'] = $table_value['concept_speaker_name'];
 		$wordlist_total_data[] = $row_data;
 
-		$query = "INSERT INTO master_word_list (wordlist, wordlist_id, concept_id, concept, speaker_name, citation, noun_class, concept_speaker_name) Values (?, ?, ?, ?, ?, ?, ?, ?);";
+		$query = "INSERT INTO master_word_list (wordlist, wordlist_id, concept_id, concept, speaker_name, word, noun_class, concept_speaker_name) Values (?, ?, ?, ?, ?, ?, ?, ?);";
 	    $statement = $conn->prepare($query);
 		$statement->setFetchMode(PDO::FETCH_ASSOC);
 

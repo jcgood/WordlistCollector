@@ -36,9 +36,9 @@ if($data['excel_query_type'] == 'language_citation'){
     // Order result according to each concept-speaker
     $query_result_concept_speaker_wise = array();
     foreach ($query_result as $key => $value) {
-        $query_result_concept_speaker_wise[$value['concept']]['sr_no'] = $concept_sr_no[$value['concept']]['sr_no'];
-        $query_result_concept_speaker_wise[$value['concept']]['concept'] = $value['concept'];
-        $query_result_concept_speaker_wise[$value['concept']][$value['speaker_name']] = $value['word'];
+        $query_result_concept_speaker_wise[$value['concept']]['sr_no'] = trim($concept_sr_no[$value['concept']]['sr_no']);
+        $query_result_concept_speaker_wise[$value['concept']]['concept'] = trim($value['concept']);
+        $query_result_concept_speaker_wise[$value['concept']][$value['speaker_name']] = trim($value['word']);
     }
 
     // Get a list of speakers
@@ -72,24 +72,27 @@ if($error){
 
 
 // file name for download
-$fileName = "Query_result_" . date('Ymd') . ".xls";
+// $fileName = "Query_result_" . date('Ymd') . ".xls";
+$fileName = "Query_result_" . date('Ymd') . ".csv";
 
 header("Content-Disposition: attachment; filename=\"$fileName\"");
-header("Content-Type: application/vnd.ms-excel; charset=utf-8;");
-// header("Pragma: no-cache");
-// header("Expires: 0");
+// header("Content-Type: application/vnd.ms-excel; charset=utf-8;");
+header("Content-Type: text/x-csv; charset=utf-8;");
+// ob_end_clean();
+header("Pragma: no-cache");
+header("Expires: 0");
 echo "\xEF\xBB\xBF"; //UTF-8 BOM
 
 $flag = false;
 foreach($query_result as $row) {
     if(!$flag) {
         // display column names as first row
-        echo implode("\t ,", array_keys($row)) . "\n";
+        echo implode(",", array_keys($row)) . "\n";
         $flag = true;
     }
     // filter data
     array_walk($row, 'filterData');
-    echo implode("\t ,", preg_replace('/,/',';',array_values($row))). "\n";
+    echo implode(",", preg_replace('/,/',';',array_values($row))). "\n";
 }
 
 function transposeResult($tmp_result){
